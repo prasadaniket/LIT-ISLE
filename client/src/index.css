@@ -1,0 +1,207 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Rubik+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+/* Optional local font for TAN Nimbus if you add it to public/fonts */
+@font-face {
+  font-family: 'TAN Nimbus';
+  src: url('/fonts/TAN-Nimbus.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  
+  /* Custom animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  body {
+    /* Base */
+    @apply font-sans;
+    background-color: #FAF3E0; /* ivory/beige */
+    color: #2E2E2E; /* charcoal */
+    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    /* Forest green */
+    @apply px-6 py-3 text-white rounded-xl shadow-lg transition-colors duration-200;
+    background-color: #2C5F2D;
+  }
+  .btn-primary:hover { background-color: #234d24; }
+
+  .btn-secondary {
+    /* Rich navy */
+    @apply px-6 py-3 text-white rounded-xl shadow-lg transition-colors duration-200;
+    background-color: #2C3E50;
+  }
+  .btn-secondary:hover { background-color: #233240; }
+
+  .btn-accent {
+    /* Burnt orange */
+    @apply px-6 py-3 text-white rounded-xl shadow-md transition-colors duration-200;
+    background-color: #D35400;
+  }
+  .btn-accent:hover { background-color: #b54800; }
+
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6 border border-gray-100;
+  }
+
+  .page-bg {
+    /* subtle paper-like background */
+    background: radial-gradient(1200px 600px at 50% -200px, #ffffff 0%, #FAF3E0 60%);
+  }
+
+  .text-gradient {
+    /* Burgundy accent gradient for headings */
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(90deg, #800020, #2C3E50);
+  }
+
+  .brand-litisle {
+    font-family: 'TAN Nimbus', ui-serif, Georgia, serif;
+    letter-spacing: 0.5px;
+  }
+  .brand-sub {
+    font-family: 'Rubik One', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    letter-spacing: 1px;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .reveal-on-scroll { opacity: 0; transform: translateY(12px); }
+  .reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); transition: all .6s ease; }
+
+  /* Scroll Animation Classes */
+  .scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .scroll-animate.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .scroll-animate-delay-1 { transition-delay: 0.1s; }
+  .scroll-animate-delay-2 { transition-delay: 0.2s; }
+  .scroll-animate-delay-3 { transition-delay: 0.3s; }
+  .scroll-animate-delay-4 { transition-delay: 0.4s; }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* App base tokens used by utilities like bg-background, text-foreground, border-border, outline-ring */
+  --background: #FAF3E0;
+  --foreground: #2E2E2E;
+  --border: hsl(220 13% 91%);
+  --ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* Dark theme tokens */
+  --background: hsl(240 5.9% 10%);
+  --foreground: hsl(240 4.8% 95.9%);
+  --border: hsl(240 3.7% 15.9%);
+  --ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Tokens for utilities used in @apply (Tailwind v4) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
+
+/* Remove unsupported shadcn-style utilities to avoid build errors */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
