@@ -8,11 +8,6 @@ export const validateEmail = (email) => {
     if (!validator.isEmail(email)) {
         return { isValid: false, message: "Please provide a valid email address" };
     }
-    // Check if it's a Gmail address
-    const domain = email.split('@')[1]?.toLowerCase();
-    if (domain !== 'gmail.com') {
-        return { isValid: false, message: "Only Gmail addresses are allowed" };
-    }
     return { isValid: true };
 };
 

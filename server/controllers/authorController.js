@@ -287,13 +287,13 @@ export async function getBookAnalytics(req, res) {
 // Update author profile
 export async function updateAuthorProfile(req, res) {
     try {
-        const { bio, website, socialLinks, genres } = req.body;
+        const { bio, website, socialMedia, genres } = req.body;
         const userId = req.user.id;
 
         const updateData = {};
         if (bio) updateData.bio = bio;
         if (website) updateData.website = website;
-        if (socialLinks) updateData.socialLinks = socialLinks;
+        if (socialMedia) updateData.socialMedia = socialMedia;
         if (genres) updateData.genres = genres;
 
         const user = await userModel.findByIdAndUpdate(

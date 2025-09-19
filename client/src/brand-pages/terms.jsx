@@ -19,6 +19,10 @@ import {
   Building,
   Mail,
   Lock,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -26,7 +30,21 @@ import Footer from "../components/Footer";
 const Terms = () => {
   const [visibleItems, setVisibleItems] = useState(new Set());
   const [activeSection, setActiveSection] = useState("acceptance");
+  const [expandedSections, setExpandedSections] = useState(new Set());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const sectionRef = useRef(null);
+
+  const toggleSection = (id) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
 
   // Auto-scroll to top when component mounts
   useEffect(() => {
@@ -150,13 +168,98 @@ const Terms = () => {
     }
   };
 
+  // Mobile Section Component
+  const MobileSection = ({ id, title, children, defaultExpanded = false }) => {
+    const isExpanded = expandedSections.has(id);
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden">
+        <button
+          onClick={() => toggleSection(id)}
+          className="w-full px-4 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+        >
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-600" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-600" />
+          )}
+        </button>
+        {isExpanded && (
+          <div className="px-4 py-4">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Navbar />
+      
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed top-0 left-0 h-full w-80 bg-white shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Navigation</h2>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+            <nav className="p-4 space-y-2">
+              <Link to="/" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">Home</Link>
+              <Link to="/about" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">About</Link>
+              <Link to="/authors" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">Authors</Link>
+              <Link to="/careers" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">Careers</Link>
+              <Link to="/contact" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">Contact</Link>
+              <Link to="/help" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">Help Center</Link>
+            </nav>
+          </div>
+        </div>
+      )}
+
       <div ref={sectionRef} className="relative">
-        {/* ===== BOOK COVER HERO SECTION ===== */}
+        {/* Mobile Hero */}
+        <section className="lg:hidden relative py-16 px-4">
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Menu className="w-6 h-6 text-gray-700" />
+            </button>
+            <h1 className="text-2xl font-bold text-gray-900">Terms & Conditions</h1>
+            <div className="w-10" />
+          </div>
+          <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <BookOpen className="w-12 h-12 text-[#0B6623]" />
+            </div>
+            <div className="w-16 h-1 bg-[#0B6623] mx-auto rounded mb-4" />
+            <p className="text-gray-700 text-sm leading-relaxed mb-4">
+              "In the vast library of digital experiences, every reader deserves a clear understanding of their journey."
+            </p>
+            <div className="flex items-center justify-center space-x-4 text-gray-600 text-xs">
+              <div className="flex items-center space-x-1">
+                <Calendar className="w-3 h-3" />
+                <span>Sep 2025</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <BookMarked className="w-3 h-3" />
+                <span>v1.0</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Desktop Hero */}
         <section
-          className="relative py-32 px-6 overflow-hidden"
+          className="hidden lg:block relative py-32 px-6 overflow-hidden"
           data-scroll-item
           data-index="hero"
           style={{
@@ -181,29 +284,29 @@ const Terms = () => {
           <div className="max-w-6xl mx-auto relative z-10">
             {/* Book spine effect */}
             <div className="flex items-center justify-center mb-8">
-              <div className="w-2 h-32 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full mr-4"></div>
+              <div className="w-2 h-32 bg-[#0B6623] rounded-full mr-4"></div>
               <div className="text-center">
                 <div className="flex justify-center mb-4">
-                  <BookOpen className="w-16 h-16 text-orange-400" />
+                  <BookOpen className="w-16 h-16 text-[#0B6623]" />
                 </div>
-                <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 font-serif">
+                <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-4 font-serif">
                   Terms & Conditions
                 </h1>
-                <div className="text-xl text-orange-400 font-medium mb-2">
+                <div className="text-xl text-[#0B6623] font-medium mb-2">
                   A Digital Library Agreement
                 </div>
-                <div className="w-32 h-1 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto mb-6"></div>
+                <div className="w-32 h-1 bg-[#0B6623] mx-auto mb-6"></div>
               </div>
-              <div className="w-2 h-32 bg-gradient-to-b from-orange-400 to-orange-600 rounded-full ml-4"></div>
+              <div className="w-2 h-32 bg-[#0B6623] rounded-full ml-4"></div>
             </div>
 
             <div className="text-center max-w-4xl mx-auto">
-              <p className="text-xl text-gray-300 leading-relaxed mb-6 font-light">
+              <p className="text-xl text-gray-700 leading-relaxed mb-6 font-light">
                 "In the vast library of digital experiences, every reader
                 deserves a clear understanding of their journey. Welcome to LIT
                 ISLE's literary contract."
               </p>
-              <div className="flex items-center justify-center space-x-6 text-gray-500">
+              <div className="flex items-center justify-center space-x-6 text-gray-600">
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4" />
                   <span className="text-sm">Last Updated: September 2025</span>
@@ -221,9 +324,50 @@ const Terms = () => {
           </div>
         </section>
 
-        {/* ===== TABLE OF CONTENTS - BOOK INDEX STYLE ===== */}
+        {/* Mobile Table of Contents */}
+        <section className="lg:hidden py-8 px-4 bg-gray-50">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-6">
+              <div className="flex items-center justify-center mb-3">
+                <FileText className="w-6 h-6 text-[#0B6623] mr-2" />
+                <h2 className="text-xl font-bold text-gray-900">Table of Contents</h2>
+              </div>
+              <p className="text-gray-600 text-sm">
+                Navigate through our literary agreement
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {sections.map((section, index) => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`w-full p-4 rounded-xl text-left transition-all duration-300 border ${
+                    activeSection === section.id
+                      ? "bg-[#0B6623]/10 border-[#0B6623]/40 text-gray-700"
+                      : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-[#0B6623]/30"
+                  }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <section.icon className="w-5 h-5 text-[#0B6623] mt-0.5" />
+                    <div className="flex-1">
+                      <div className="font-semibold text-sm mb-1">
+                        {section.title}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        {section.subtitle}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Desktop Table of Contents */}
         <section
-          className="py-16 px-6 bg-gradient-to-r from-gray-900/50 to-gray-800/50"
+          className="hidden lg:block py-16 px-6 bg-gray-50"
           data-scroll-item
           data-index="toc"
           style={{
@@ -237,12 +381,12 @@ const Terms = () => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <div className="flex items-center justify-center mb-4">
-                <FileText className="w-8 h-8 text-orange-400 mr-3" />
-                <h2 className="text-3xl font-bold text-white font-serif">
+                <FileText className="w-8 h-8 text-[#0B6623] mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900 font-serif">
                   Table of Contents
                 </h2>
               </div>
-              <p className="text-gray-400">
+              <p className="text-gray-600">
                 Navigate through our literary agreement
               </p>
             </div>
@@ -254,19 +398,19 @@ const Terms = () => {
                   onClick={() => scrollToSection(section.id)}
                   className={`group p-6 rounded-2xl text-left transition-all duration-300 border-2 ${
                     activeSection === section.id
-                      ? "bg-orange-500/10 border-orange-500/40 text-orange-300 shadow-lg shadow-orange-500/20"
-                      : "bg-gray-800/30 border-gray-700 text-gray-300 hover:bg-gray-800/50 hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/10"
+                      ? "bg-[#0B6623]/10 border-[#0B6623]/40 text-gray-700"
+                      : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-[#0B6623]/30"
                   }`}
                 >
                   <div className="flex items-start space-x-4">
                     <div className="group-hover:scale-110 transition-transform duration-300">
-                      <section.icon className="w-8 h-8 text-orange-400" />
+                      <section.icon className="w-8 h-8 text-[#0B6623]" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-bold text-lg mb-1 group-hover:text-orange-300 transition-colors">
+                      <div className="font-bold text-lg mb-1">
                         {section.title}
                       </div>
-                      <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                      <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors">
                         {section.subtitle}
                       </div>
                     </div>
@@ -277,9 +421,63 @@ const Terms = () => {
           </div>
         </section>
 
-        {/* ===== MAIN CONTENT - BOOK CHAPTERS ===== */}
+        {/* Mobile Main Content */}
+        <section className="lg:hidden py-8 px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-4">
+              {sections.map((section, index) => (
+                <MobileSection key={section.id} id={section.id} title={section.title}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <section.icon className="w-5 h-5 text-[#0B6623]" />
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {section.subtitle}
+                    </h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed text-sm">
+                    {section.content}
+                  </p>
+                </MobileSection>
+              ))}
+
+              {/* Mobile Contact Section */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <Library className="w-12 h-12 text-[#0B6623]" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  Questions About Our Terms?
+                </h3>
+                <p className="text-gray-700 mb-4 text-sm leading-relaxed">
+                  Like any good librarian, we're here to help you understand our collection. Have questions about these terms? We're just a message away!
+                </p>
+                <div className="flex flex-col gap-3">
+                  <Link
+                    to="/contact"
+                    className="px-6 py-3 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-lg transition-colors text-sm"
+                  >
+                    <span className="flex items-center justify-center space-x-2">
+                      <Mail className="w-4 h-4" />
+                      <span>Contact Our Librarians</span>
+                    </span>
+                  </Link>
+                  <Link
+                    to="/privacy"
+                    className="px-6 py-3 border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white font-semibold rounded-lg transition-colors text-sm"
+                  >
+                    <span className="flex items-center justify-center space-x-2">
+                      <Lock className="w-4 h-4" />
+                      <span>Privacy Policy</span>
+                    </span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Desktop Main Content */}
         <section
-          className="py-20 px-6"
+          className="hidden lg:block py-20 px-6"
           data-scroll-item
           data-index="sections"
           style={{
@@ -300,24 +498,24 @@ const Terms = () => {
                 >
                   {/* Chapter divider */}
                   <div className="flex items-center mb-8">
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-orange-500/30 to-transparent"></div>
+                    <div className="flex-1 h-px bg-[#0B6623]/20"></div>
                     <div className="mx-6">
-                      <section.icon className="w-10 h-10 text-orange-400" />
+                      <section.icon className="w-10 h-10 text-[#0B6623]" />
                     </div>
-                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-orange-500/30 to-transparent"></div>
+                    <div className="flex-1 h-px bg-[#0B6623]/20"></div>
                   </div>
 
                   {/* Chapter content */}
-                  <div className="bg-gradient-to-br from-gray-900/60 to-gray-800/40 border border-gray-700/50 rounded-3xl p-10 hover:border-orange-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 group-hover:bg-gradient-to-br group-hover:from-gray-900/70 group-hover:to-gray-800/50">
+                  <div className="bg-white border border-gray-200 rounded-3xl p-10 hover:border-[#0B6623]/30 transition-all duration-300">
                     <div className="mb-6">
-                      <h3 className="text-3xl font-bold text-white mb-3 font-serif group-hover:text-orange-300 transition-colors">
+                      <h3 className="text-3xl font-bold text-gray-900 mb-3 font-serif">
                         {section.title}
                       </h3>
-                      <div className="text-lg text-orange-400 font-medium mb-4">
+                      <div className="text-lg text-[#0B6623] font-medium mb-4">
                         {section.subtitle}
                       </div>
                     </div>
-                    <p className="text-gray-300 leading-relaxed text-lg font-light">
+                    <p className="text-gray-700 leading-relaxed text-lg font-light">
                       {section.content}
                     </p>
                   </div>
@@ -327,9 +525,9 @@ const Terms = () => {
           </div>
         </section>
 
-        {/* ===== CONTACT SECTION - LIBRARIAN'S DESK ===== */}
+        {/* Desktop Contact Section */}
         <section
-          className="py-20 px-6 bg-gradient-to-br from-gray-900/80 to-gray-800/60"
+          className="hidden lg:block py-20 px-6 bg-gray-50"
           data-scroll-item
           data-index="contact"
           style={{
@@ -341,14 +539,14 @@ const Terms = () => {
           }}
         >
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 rounded-3xl p-12 backdrop-blur-sm">
+            <div className="bg-white border border-gray-200 rounded-3xl p-12">
               <div className="flex justify-center mb-6">
-                <Library className="w-16 h-16 text-orange-400" />
+                <Library className="w-16 h-16 text-[#0B6623]" />
               </div>
-              <h3 className="text-4xl font-bold text-white mb-6 font-serif">
+              <h3 className="text-4xl font-bold text-gray-900 mb-6 font-serif">
                 Questions About Our Terms?
               </h3>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
                 Like any good librarian, we're here to help you understand our
                 collection. Have questions about these terms? We're just a
                 message away!
@@ -356,7 +554,7 @@ const Terms = () => {
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link
                   to="/contact"
-                  className="group px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-orange-500/25"
+                  className="group px-10 py-4 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                   <span className="flex items-center justify-center space-x-2">
                     <Mail className="w-5 h-5" />
@@ -365,7 +563,7 @@ const Terms = () => {
                 </Link>
                 <Link
                   to="/privacy"
-                  className="group px-10 py-4 border-2 border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105"
+                  className="group px-10 py-4 border-2 border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-gray-900 font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105"
                 >
                   <span className="flex items-center justify-center space-x-2">
                     <Lock className="w-5 h-5" />

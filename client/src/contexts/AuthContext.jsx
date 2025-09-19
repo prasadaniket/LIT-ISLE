@@ -15,6 +15,9 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [profileCompletion, setProfileCompletion] = useState(0);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
 
   // Initialize auth state on app load
   useEffect(() => {
@@ -25,8 +28,11 @@ export const AuthProvider = ({ children }) => {
           // Verify token by getting user profile
           const response = await authAPI.getProfile();
           if (response.success) {
-            setUser(response.user);
+            // API returns { success, profile, profileCompletion, isProfileComplete }
+            setUser(response.profile);
             setIsAuthenticated(true);
+            setProfileCompletion(response.profileCompletion || 0);
+            setIsProfileComplete(response.isProfileComplete || false);
           } else {
             // Token is invalid, remove it
             authAPI.logout();
@@ -49,6 +55,8 @@ export const AuthProvider = ({ children }) => {
       if (response.success) {
         setUser(response.user);
         setIsAuthenticated(true);
+        setProfileCompletion(response.profileCompletion || 0);
+        setIsProfileComplete(response.isProfileComplete || false);
         return { success: true, user: response.user };
       } else {
         return { success: false, message: response.message };
@@ -62,9 +70,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authAPI.register(userData);
       if (response.success) {
-        setUser(response.user);
-        setIsAuthenticated(true);
-        return { success: true, user: response.user };
+        // Do NOT authenticate on register. Require explicit login afterwards.
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsNewUser(true);
+        return { success: true };
       } else {
         return { success: false, message: response.message };
       }
@@ -77,13 +87,22 @@ export const AuthProvider = ({ children }) => {
     authAPI.logout();
     setUser(null);
     setIsAuthenticated(false);
+    setIsNewUser(false);
+    setProfileCompletion(0);
+    setIsProfileComplete(false);
+  };
+
+  // Function to mark new user as "settled" after they've had their fresh start
+  const markUserAsSettled = () => {
+    setIsNewUser(false);
   };
 
   const updateProfile = async (profileData) => {
     try {
       const response = await authAPI.updateProfile(profileData);
       if (response.success) {
-        setUser(response.user);
+        // API returns updated profile under `profile`
+        setUser(response.profile);
         return { success: true, user: response.user };
       } else {
         return { success: false, message: response.message };
@@ -97,10 +116,14 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated,
     isLoading,
+    isNewUser,
+    profileCompletion,
+    isProfileComplete,
     login,
     register,
     logout,
     updateProfile,
+    markUserAsSettled,
   };
 
   return (

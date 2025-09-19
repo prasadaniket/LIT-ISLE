@@ -53,7 +53,7 @@ Authorization: Bearer <your_jwt_token>
   "name": "John Doe",
   "bio": "Book lover",
   "website": "https://johndoe.com",
-  "socialLinks": {
+  "socialMedia": {
     "twitter": "@johndoe",
     "instagram": "@johndoe"
   },

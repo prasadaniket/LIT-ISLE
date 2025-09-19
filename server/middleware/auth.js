@@ -98,3 +98,6 @@ export const optionalAuth = async (req, res, next) => {
         next();
     }
 };
+
+// Alias for authenticateToken (used by profile routes)
+export const protect = authenticateToken;

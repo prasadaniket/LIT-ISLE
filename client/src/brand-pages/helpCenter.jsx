@@ -21,6 +21,10 @@ import {
   Star,
   ChevronRight,
   CheckCircle,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -29,7 +33,22 @@ const HelpCenter = () => {
   const [visibleItems, setVisibleItems] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [expandedSections, setExpandedSections] = useState(new Set(['hero']));
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const sectionRef = useRef(null);
+
+  // Mobile helper functions
+  const toggleSection = (sectionId) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
+  };
 
   // Auto-scroll to top when component mounts
   useEffect(() => {
@@ -243,13 +262,103 @@ const HelpCenter = () => {
       ? helpCategories
       : helpCategories.filter((cat) => cat.id === selectedCategory);
 
+  // Mobile collapsible section component
+  const MobileSection = ({ id, title, children }) => {
+    const isExpanded = expandedSections.has(id);
+    
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden">
+        <button
+          onClick={() => toggleSection(id)}
+          className="w-full px-4 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+        >
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-600" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-600" />
+          )}
+        </button>
+        {isExpanded && (
+          <div className="px-4 py-4">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Navbar />
+      
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
+          <div className="absolute left-0 top-0 h-full w-80 bg-white shadow-xl">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Help Center</h2>
+                <button onClick={() => setSidebarOpen(false)}>
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 space-y-4">
+              <a href="#search" className="block py-2 text-gray-700 hover:text-[#0B6623]">Search Help</a>
+              <a href="#categories" className="block py-2 text-gray-700 hover:text-[#0B6623]">Help Topics</a>
+              <a href="#faq" className="block py-2 text-gray-700 hover:text-[#0B6623]">FAQ</a>
+              <a href="#contact" className="block py-2 text-gray-700 hover:text-[#0B6623]">Contact Support</a>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div ref={sectionRef} className="relative">
-        {/* ===== HERO SECTION ===== */}
+        {/* ===== MOBILE HERO SECTION ===== */}
+        <section className="lg:hidden">
+          <div className="bg-gradient-to-br from-[#0B6623]/10 to-white py-8 px-4">
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-lg bg-white shadow-sm"
+              >
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
+              <h1 className="text-xl font-bold text-gray-900">Help Center</h1>
+              <div className="w-10" />
+            </div>
+            
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <HelpCircle className="w-12 h-12 text-[#0B6623]" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Get Help & Support
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Find answers and make the most of your reading experience
+              </p>
+            </div>
+
+            {/* Mobile Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
+              <input
+                type="text"
+                placeholder="Search help articles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 text-sm"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ===== DESKTOP HERO SECTION ===== */}
         <section
-          className="relative py-32 px-6 overflow-hidden"
+          className="hidden lg:block relative py-32 px-6 overflow-hidden"
           data-scroll-item
           data-index="hero"
           style={{
@@ -274,12 +383,12 @@ const HelpCenter = () => {
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="text-center mb-12">
               <div className="flex justify-center mb-6">
-                <HelpCircle className="w-16 h-16 text-orange-400" />
+                <HelpCircle className="w-16 h-16 text-[#0B6623]" />
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-serif">
+              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 font-serif">
                 Help Center
               </h1>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8">
+              <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
                 Your guide to navigating LIT ISLE's digital library. Find
                 answers, get support, and make the most of your reading
                 experience.
@@ -289,22 +398,161 @@ const HelpCenter = () => {
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600" />
                 <input
                   type="text"
                   placeholder="Search for help articles, FAQs, or topics..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-gray-800/50 border border-gray-700 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-100 border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20"
                 />
               </div>
             </div>
           </div>
         </section>
 
-        {/* ===== QUICK CONTACT ===== */}
+        {/* ===== MOBILE CONTENT SECTIONS ===== */}
+        <div className="lg:hidden px-4 py-6">
+          {/* Quick Contact */}
+          <MobileSection id="contact" title="Quick Contact">
+            <div className="space-y-4">
+              {[
+                {
+                  icon: Mail,
+                  title: "Email Support",
+                  description: "Get detailed help via email",
+                  value: "support@litisle.com",
+                  action: "mailto:support@litisle.com"
+                },
+                {
+                  icon: Clock,
+                  title: "Response Time",
+                  description: "We typically respond within",
+                  value: "24 hours",
+                  action: null
+                },
+                {
+                  icon: MessageCircle,
+                  title: "Live Chat",
+                  description: "Coming soon!",
+                  value: "Real-time support",
+                  action: null
+                }
+              ].map((info, index) => (
+                <div 
+                  key={index}
+                  className={`flex items-center gap-3 p-3 rounded-lg ${
+                    info.action ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer' : 'bg-gray-50'
+                  }`}
+                  onClick={info.action ? () => window.open(info.action) : undefined}
+                >
+                  <info.icon className="w-5 h-5 text-[#0B6623] flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-gray-900 text-sm">{info.title}</h4>
+                    <p className="text-gray-600 text-xs">{info.description}</p>
+                    <p className={`text-sm font-medium ${info.action ? 'text-[#0B6623]' : 'text-gray-700'}`}>
+                      {info.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </MobileSection>
+
+          {/* Help Categories */}
+          <MobileSection id="categories" title="Help Topics">
+            <div className="space-y-4">
+              {helpCategories.map((category, index) => (
+                <div key={category.id} className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-[#0B6623]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <category.icon className="w-4 h-4 text-[#0B6623]" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+                        {category.title}
+                      </h4>
+                      <p className="text-gray-600 text-xs leading-relaxed mb-3">
+                        {category.description}
+                      </p>
+                      <div className="space-y-2">
+                        {category.articles.slice(0, 2).map((article, articleIndex) => (
+                          <div key={articleIndex} className="text-xs">
+                            <div className="flex items-center text-gray-600 mb-1">
+                              <ChevronRight className="w-3 h-3 mr-1 text-[#0B6623]" />
+                              {article.q}
+                            </div>
+                          </div>
+                        ))}
+                        {category.articles.length > 2 && (
+                          <p className="text-xs text-[#0B6623] font-medium">
+                            +{category.articles.length - 2} more articles
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </MobileSection>
+
+          {/* FAQ */}
+          <MobileSection id="faq" title="Frequently Asked Questions">
+            <div className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div key={index} className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-start">
+                    <CheckCircle className="w-4 h-4 text-[#0B6623] mr-3 mt-1 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm">
+                        {faq.question}
+                      </h4>
+                      <p className="text-gray-600 text-xs leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </MobileSection>
+
+          {/* Contact CTA */}
+          <MobileSection id="cta" title="Still Need Help?">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center mb-4">
+                <MessageCircle className="w-12 h-12 text-[#0B6623]" />
+              </div>
+              <h4 className="text-lg font-semibold text-gray-900">
+                Can't find what you're looking for?
+              </h4>
+              <p className="text-gray-600 text-sm">
+                Our support team is here to help you with any questions or issues.
+              </p>
+              <div className="space-y-3">
+                <Link
+                  to="/contact"
+                  className="block w-full px-6 py-3 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  Contact Support
+                </Link>
+                <a
+                  href="mailto:support@litisle.com"
+                  className="block w-full px-6 py-3 border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  Email Us Directly
+                </a>
+              </div>
+            </div>
+          </MobileSection>
+        </div>
+
+        {/* ===== DESKTOP QUICK CONTACT ===== */}
         <section
-          className="py-16 px-6 bg-gradient-to-r from-gray-900/50 to-gray-800/50"
+          className="hidden lg:block py-16 px-6 bg-gray-50"
           data-scroll-item
           data-index="contact"
           style={{
@@ -317,57 +565,57 @@ const HelpCenter = () => {
         >
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4 font-serif">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">
                 Need Immediate Help?
               </h2>
-              <p className="text-gray-400">
+              <p className="text-gray-600">
                 Get in touch with our support team
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 text-center hover:border-orange-500/30 transition-all duration-300">
-                <Mail className="w-8 h-8 text-orange-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center hover:border-[#0B6623]/30 transition-all duration-300">
+                <Mail className="w-8 h-8 text-[#0B6623] mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Email Support
                 </h3>
-                <p className="text-gray-400 text-sm mb-4">
+                <p className="text-gray-600 text-sm mb-4">
                   Get detailed help via email
                 </p>
                 <a
                   href="mailto:support@litisle.com"
-                  className="text-orange-400 hover:text-orange-300 transition-colors"
+                  className="text-[#0B6623] hover:text-[#0e7a2b] transition-colors"
                 >
                   support@litisle.com
                 </a>
               </div>
 
-              <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 text-center hover:border-orange-500/30 transition-all duration-300">
-                <Clock className="w-8 h-8 text-orange-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center hover:border-[#0B6623]/30 transition-all duration-300">
+                <Clock className="w-8 h-8 text-[#0B6623] mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Response Time
                 </h3>
-                <p className="text-gray-400 text-sm mb-4">
+                <p className="text-gray-600 text-sm mb-4">
                   We typically respond within
                 </p>
-                <p className="text-orange-400 font-medium">24 hours</p>
+                <p className="text-[#0B6623] font-medium">24 hours</p>
               </div>
 
-              <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 text-center hover:border-orange-500/30 transition-all duration-300">
-                <MessageCircle className="w-8 h-8 text-orange-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
+              <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center hover:border-[#0B6623]/30 transition-all duration-300">
+                <MessageCircle className="w-8 h-8 text-[#0B6623] mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Live Chat
                 </h3>
-                <p className="text-gray-400 text-sm mb-4">Coming soon!</p>
-                <p className="text-gray-500 text-sm">Real-time support</p>
+                <p className="text-gray-600 text-sm mb-4">Coming soon!</p>
+                <p className="text-gray-600 text-sm">Real-time support</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ===== HELP CATEGORIES ===== */}
+        {/* ===== DESKTOP HELP CATEGORIES ===== */}
         <section
-          className="py-20 px-6"
+          className="hidden lg:block py-20 px-6"
           data-scroll-item
           data-index="categories"
           style={{
@@ -380,10 +628,10 @@ const HelpCenter = () => {
         >
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-white mb-4 font-serif">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">
                 Browse Help Topics
               </h2>
-              <p className="text-gray-400">
+              <p className="text-gray-600">
                 Find answers organized by category
               </p>
             </div>
@@ -392,29 +640,29 @@ const HelpCenter = () => {
               {filteredCategories.map((category, index) => (
                 <div
                   key={category.id}
-                  className="bg-gradient-to-br from-gray-900/60 to-gray-800/40 border border-gray-700/50 rounded-2xl p-8 hover:border-orange-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-orange-500/10 group"
+                  className="bg-white border border-gray-200 rounded-2xl p-8 hover:border-[#0B6623]/30 transition-all duration-500"
                 >
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-orange-500/30 transition-colors">
-                      <category.icon className="w-6 h-6 text-orange-400" />
+                    <div className="w-12 h-12 bg-[#0B6623]/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-[#0B6623]/30 transition-colors">
+                      <category.icon className="w-6 h-6 text-[#0B6623]" />
                     </div>
-                    <h3 className="text-xl font-bold text-white group-hover:text-orange-300 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900">
                       {category.title}
                     </h3>
                   </div>
 
-                  <p className="text-gray-400 mb-6 leading-relaxed">
+                  <p className="text-gray-600 mb-6 leading-relaxed">
                     {category.description}
                   </p>
 
                   <div className="space-y-3">
                     {category.articles.map((article, articleIndex) => (
                       <div key={articleIndex} className="group/item">
-                        <div className="flex items-center text-sm text-gray-200 group-hover/item:text-orange-300 transition-colors cursor-default">
-                          <ChevronRight className="w-4 h-4 mr-2 text-orange-400" />
+                        <div className="flex items-center text-sm text-gray-600 cursor-default">
+                          <ChevronRight className="w-4 h-4 mr-2 text-[#0B6623]" />
                           {article.q}
                         </div>
-                        <p className="text-xs text-gray-400 leading-relaxed pl-6 mt-1">
+                        <p className="text-xs text-gray-600 leading-relaxed pl-6 mt-1">
                           {article.a}
                         </p>
                       </div>
@@ -426,9 +674,9 @@ const HelpCenter = () => {
           </div>
         </section>
 
-        {/* ===== FAQ SECTION ===== */}
+        {/* ===== DESKTOP FAQ SECTION ===== */}
         <section
-          className="py-20 px-6 bg-gradient-to-br from-gray-900/80 to-gray-800/60"
+          className="hidden lg:block py-20 px-6 bg-gray-50"
           data-scroll-item
           data-index="faq"
           style={{
@@ -441,25 +689,25 @@ const HelpCenter = () => {
         >
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-white mb-4 font-serif">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">
                 Frequently Asked Questions
               </h2>
-              <p className="text-gray-400">Quick answers to common questions</p>
+              <p className="text-gray-600">Quick answers to common questions</p>
             </div>
 
             <div className="space-y-6">
               {faqs.map((faq, index) => (
                 <div
                   key={index}
-                  className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-8 hover:border-orange-500/30 transition-all duration-300"
+                  className="bg-white border border-gray-200 rounded-2xl p-8 hover:border-[#0B6623]/30 transition-all duration-300 shadow-sm"
                 >
                   <div className="flex items-start">
-                    <CheckCircle className="w-6 h-6 text-orange-400 mr-4 mt-1 flex-shrink-0" />
+                    <CheckCircle className="w-6 h-6 text-[#0B6623] mr-4 mt-1 flex-shrink-0" />
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
                         {faq.question}
                       </h3>
-                      <p className="text-gray-300 leading-relaxed">
+                      <p className="text-gray-700 leading-relaxed">
                         {faq.answer}
                       </p>
                     </div>
@@ -470,9 +718,9 @@ const HelpCenter = () => {
           </div>
         </section>
 
-        {/* ===== CONTACT CTA ===== */}
+        {/* ===== DESKTOP CONTACT CTA ===== */}
         <section
-          className="py-20 px-6"
+          className="hidden lg:block py-20 px-6"
           data-scroll-item
           data-index="cta"
           style={{
@@ -484,21 +732,21 @@ const HelpCenter = () => {
           }}
         >
           <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 rounded-3xl p-12 backdrop-blur-sm">
+            <div className="bg-white border border-gray-200 rounded-3xl p-12">
               <div className="flex justify-center mb-6">
-                <MessageCircle className="w-16 h-16 text-orange-400" />
+                <MessageCircle className="w-16 h-16 text-[#0B6623]" />
               </div>
-              <h3 className="text-4xl font-bold text-white mb-6 font-serif">
+              <h3 className="text-4xl font-bold text-gray-900 mb-6 font-serif">
                 Still Need Help?
               </h3>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed">
                 Can't find what you're looking for? Our support team is here to
                 help you with any questions or issues.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link
                   to="/contact"
-                  className="group px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-orange-500/25"
+                  className="group px-10 py-4 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                   <span className="flex items-center justify-center space-x-2">
                     <Mail className="w-5 h-5" />
@@ -507,7 +755,7 @@ const HelpCenter = () => {
                 </Link>
                 <a
                   href="mailto:support@litisle.com"
-                  className="group px-10 py-4 border-2 border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105"
+                  className="group px-10 py-4 border-2 border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-gray-900 font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105"
                 >
                   <span className="flex items-center justify-center space-x-2">
                     <Mail className="w-5 h-5" />

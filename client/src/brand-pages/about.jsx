@@ -5,12 +5,16 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { useAuth } from "../contexts/AuthContext";
+import { ChevronDown, ChevronUp, Menu, X } from "lucide-react";
 
 const About = () => {
   // ===== STATE MANAGEMENT =====
   const [visibleItems, setVisibleItems] = useState(new Set()); // Track visible sections for animations
   const [currentImageIndex, setCurrentImageIndex] = useState(0); // Current image in rotation
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // User authentication state
+  const [expandedSections, setExpandedSections] = useState(new Set(['hero'])); // Mobile collapsible sections
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar state
+  const { user, isAuthenticated } = useAuth(); // Get authentication state from context
   const sectionRef = useRef(null); // Reference for scroll animations
 
   // ===== DATA CONFIGURATION =====
@@ -19,6 +23,19 @@ const About = () => {
     "/brand-img/reader2.jpeg",
     "/brand-img/reader3.jpeg",
   ];
+
+  // ===== MOBILE HELPER FUNCTIONS =====
+  const toggleSection = (sectionId) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
+  };
 
   // ===== EFFECTS & ANIMATIONS =====
   
@@ -167,14 +184,108 @@ const About = () => {
     },
   ];
 
+  // ===== MOBILE COLLAPSIBLE SECTION COMPONENT =====
+  const MobileSection = ({ id, title, children, defaultExpanded = false }) => {
+    const isExpanded = expandedSections.has(id);
+    
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden">
+        <button
+          onClick={() => toggleSection(id)}
+          className="w-full px-4 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+        >
+          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-600" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-600" />
+          )}
+        </button>
+        {isExpanded && (
+          <div className="px-4 py-4">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // ===== MAIN COMPONENT RENDER =====
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Navbar />
+      
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
+          <div className="absolute left-0 top-0 h-full w-80 bg-white shadow-xl">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">About LIT ISLE</h2>
+                <button onClick={() => setSidebarOpen(false)}>
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 space-y-4">
+              <Link to="/" className="block py-2 text-gray-700 hover:text-[#0B6623]">Home</Link>
+              <Link to="/about" className="block py-2 text-[#0B6623] font-medium">About</Link>
+              <Link to="/authors" className="block py-2 text-gray-700 hover:text-[#0B6623]">Authors</Link>
+              <Link to="/careers" className="block py-2 text-gray-700 hover:text-[#0B6623]">Careers</Link>
+              <Link to="/contact" className="block py-2 text-gray-700 hover:text-[#0B6623]">Contact</Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div ref={sectionRef}>
-        {/* ===== HERO SECTION ===== */}
+        {/* ===== MOBILE HERO SECTION ===== */}
+        <section className="lg:hidden sticky top-0 z-40 bg-white border-b border-gray-200">
+          <div className="bg-gradient-to-br from-[#0B6623]/10 to-white py-6 px-4">
+            <div className="flex items-center justify-between mb-4">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-lg bg-white shadow-sm"
+              >
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
+              <h1 className="text-lg font-bold text-gray-900">About LIT ISLE</h1>
+              <div className="w-10" />
+            </div>
+            
+            <div className="text-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-1">
+                Your Digital Library
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Your Reading Space
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== MOBILE HERO IMAGE SLIDER ===== */}
+        <section className="lg:hidden px-4 py-4">
+          <div className="relative h-48 w-full rounded-xl overflow-hidden shadow-lg">
+            {readerImages.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`Reader ${index + 1}`}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                  index === currentImageIndex
+                    ? "opacity-100"
+                    : "opacity-0"
+                }`}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ===== DESKTOP HERO SECTION ===== */}
         <section
-          className="relative py-25 px-6"
+          className="hidden lg:block relative py-25 px-6"
           data-scroll-item
           data-index="hero"
           style={{
@@ -186,20 +297,20 @@ const About = () => {
           }}
         >
           <div className="max-w-6xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
               About LIT ISLE
             </h1>
-            <h2 className="text-xl md:text-2xl text-gray-300 mb-8">
+            <h2 className="text-xl md:text-2xl text-gray-600 mb-8">
               Your Digital Library. Your Reading Space.
             </h2>
-            <p className="text-lg text-gray-400 max-w-5xl mx-auto leading-relaxed">
+            <p className="text-lg text-gray-700 max-w-5xl mx-auto leading-relaxed">
               LIT ISLE is more than just a digital library. It is a living,
               breathing space for readers who believe that books are not simply
               stories on paper, but entire universes waiting to be explored. We
               are a growing community of book lovers, curious learners, and
               creative minds who share one common belief: the right book, in the
               right hands, at the right time, has the power to change the world.
-              At LIT ISLE, we don’t just want you to read; we want you to experience
+              At LIT ISLE, we don't just want you to read; we want you to experience
               books. To bookmark the passages that touch your heart, to
               highlight the words that spark ideas, to discuss chapters with a
               community that understands the joy of turning pages, even when
@@ -215,9 +326,112 @@ const About = () => {
           </div>
         </section>
 
-        {/* ===== WHO WE ARE SECTION ===== */}
+        {/* ===== MOBILE CONTENT SECTIONS ===== */}
+        <div className="lg:hidden px-4 py-4 space-y-4">
+          <MobileSection id="who-we-are" title="Who We Are">
+            <div className="space-y-3">
+              <p className="text-gray-700 leading-relaxed text-sm">
+                LIT ISLE is not just another digital library; it feels like
+                stepping into a vast, endless bookshelf where every title
+                waits to be discovered. It is a gathering place for book
+                lovers, learners, and creators who understand the magic that
+                words can carry.
+              </p>
+            </div>
+          </MobileSection>
+
+          <MobileSection id="features" title="Our Features">
+            <div className="space-y-3">
+              {features.map((feature, index) => (
+                <div key={index} className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-7 h-7 bg-[#0B6623]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="text-[#0B6623] scale-75">
+                        {feature.icon}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+                        {feature.title}
+                      </h4>
+                      <p className="text-gray-600 text-xs leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </MobileSection>
+
+          <MobileSection id="founder" title="Founder's Message">
+            <div className="space-y-3">
+              <div className="w-12 h-12 bg-[#0B6623]/20 rounded-full flex items-center justify-center mx-auto">
+                <div className="w-6 h-6 bg-[#0B6623] rounded-full"></div>
+              </div>
+              <blockquote className="text-gray-700 leading-relaxed italic text-sm">
+                <p className="mb-2">
+                  Books have always been more than ink on paper for me. They
+                  have been companions in silence, teachers when I was lost, and
+                  windows into worlds I could never have reached on my own.
+                </p>
+                <p className="mb-2">
+                  LIT ISLE was born out of that love. I wanted to build a place
+                  where the magic of reading isn't confined to a shelf or a
+                  single moment in time, but lives on digitally, socially, and
+                  freely.
+                </p>
+                <p>
+                  This platform is built with love for readers like you, who
+                  believe that books are not just to be read, but to be lived.
+                </p>
+              </blockquote>
+              <div className="text-center pt-3 border-t border-gray-200">
+                <cite className="text-[#0B6623] font-semibold text-sm">
+                  ~ Mrs. Muskan Jaiswal
+                </cite>
+                <p className="text-gray-600 text-xs mt-1">
+                  Founder & CEO, LIT ISLE
+                </p>
+              </div>
+            </div>
+          </MobileSection>
+
+          <MobileSection id="vision" title="Our Vision">
+            <div className="space-y-3">
+              {visionPoints.map((point, index) => (
+                <div key={index} className="text-center">
+                  <div className="w-10 h-10 bg-[#0B6623]/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                    <div className="w-5 h-5 bg-[#0B6623] rounded-lg"></div>
+                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+                    {point.title}
+                  </h4>
+                  <p className="text-gray-600 text-xs leading-relaxed">
+                    {point.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </MobileSection>
+
+          <MobileSection id="faq" title="Frequently Asked Questions">
+            <div className="space-y-3">
+              {faqs.map((faq, index) => (
+                <div key={index} className="border-b border-gray-200 pb-3 last:border-b-0">
+                  <h4 className="font-semibold text-gray-900 mb-1 text-sm">
+                    {faq.q}
+                  </h4>
+                  <p className="text-gray-600 text-xs leading-relaxed">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+          </MobileSection>
+        </div>
+
+        {/* ===== DESKTOP WHO WE ARE SECTION ===== */}
         <section
-          className="py-20 px-6"
+          className="hidden lg:block py-20 px-6"
           data-scroll-item
           data-index="who-we-are"
           style={{
@@ -246,15 +460,15 @@ const About = () => {
                     />
                   ))}
                 </div>
-                <p className="text-gray-400 mt-4">Digital Reading Experience</p>
+                <p className="text-gray-600 mt-4">Digital Reading Experience</p>
               </div>
 
               {/* Right - Text content */}
               <div>
-                <h3 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                   Who We Are
                 </h3>
-                <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                <p className="text-lg text-gray-700 leading-relaxed mb-6">
                   LIT ISLE is not just another digital library; it feels like
                   stepping into a vast, endless bookshelf where every title
                   waits to be discovered. It is a gathering place for book
@@ -263,7 +477,7 @@ const About = () => {
                   reading accessible, interactive, and enjoyable for anyone who
                   seeks comfort, adventure, or knowledge in the turn of a page.
                 </p>
-                <p className="text-lg text-gray-300 leading-relaxed">
+                <p className="text-lg text-gray-700 leading-relaxed">
                   Born from a love of both books and technology, LIT ISLE bridges
                   the familiar warmth of traditional reading with the
                   possibilities of the digital age. It transforms the act of
@@ -292,10 +506,10 @@ const About = () => {
         >
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Powerful Features for Modern Readers
               </h3>
-              <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
                 Discover the tools that make reading more engaging, organized,
                 and social than ever before.
               </p>
@@ -304,18 +518,18 @@ const About = () => {
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-gray-900/50 border border-gray-800 rounded-xl p-8 hover:border-orange-500/30 transition-all duration-300 hover:bg-gray-900/70"
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-8 hover:border-[#0B6623]/30 transition-all duration-300 hover:bg-gray-100"
                   style={{
                     animationDelay: `${index * 100}ms`,
                   }}
                 >
-                  <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center mb-6 text-orange-500">
+                  <div className="w-12 h-12 bg-[#0B6623]/20 rounded-lg flex items-center justify-center mb-6 text-[#0B6623]">
                     {feature.icon}
                   </div>
-                  <h4 className="text-xl font-semibold text-white mb-4">
+                  <h4 className="text-xl font-semibold text-gray-900 mb-4">
                     {feature.title}
                   </h4>
-                  <p className="text-gray-400 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -338,11 +552,11 @@ const About = () => {
           }}
         >
           <div className="max-w-4xl mx-auto">
-            <div className="bg-gray-900/30 border border-gray-800 rounded-2xl p-12 text-center">
-              <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-8">
-                <div className="w-10 h-10 bg-orange-500 rounded-full"></div>
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-12 text-center">
+              <div className="w-20 h-20 bg-[#0B6623]/20 rounded-full flex items-center justify-center mx-auto mb-8">
+                <div className="w-10 h-10 bg-[#0B6623] rounded-full"></div>
               </div>
-              <blockquote className="text-lg md:text-xl text-gray-300 leading-relaxed mb-8 italic">
+              <blockquote className="text-lg md:text-xl text-gray-700 leading-relaxed mb-8 italic">
                 <p className="mb-6">
                   Books have always been more than ink on paper for me. They
                   have been companions in silence, teachers when I was lost, and
@@ -376,11 +590,11 @@ const About = () => {
                   beginning of a journey.
                 </p>
               </blockquote>
-              <div className="border-t border-gray-700 pt-6">
-                <cite className="text-lg text-orange-400 font-semibold">
+              <div className="border-t border-gray-300 pt-6">
+                <cite className="text-lg text-[#0B6623] font-semibold">
                   ~ Mrs. Muskan Jaiswal
                 </cite>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-gray-600 text-sm mt-1">
                   Founder & CEO, LIT ISLE
                 </p>
               </div>
@@ -403,10 +617,10 @@ const About = () => {
         >
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Our Vision for the Future of Reading
               </h3>
-              <p className="text-lg text-gray-400 max-w-6x1 mx-auto">
+              <p className="text-lg text-gray-600 max-w-6x1 mx-auto">
                 LIT ISLE is not just about building a platform, but about opening
                 the doors to a vast, shared library where every reader discovers
                 the story meant for them. LIT ISLE is shaping a global community
@@ -423,13 +637,13 @@ const About = () => {
                     animationDelay: `${index * 100}ms`,
                   }}
                 >
-                  <div className="w-16 h-16 bg-orange-500/10 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:bg-orange-500/20 transition-all duration-300">
-                    <div className="w-8 h-8 bg-orange-500 rounded-lg"></div>
+                  <div className="w-16 h-16 bg-[#0B6623]/10 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:bg-[#0B6623]/20 transition-all duration-300">
+                    <div className="w-8 h-8 bg-[#0B6623] rounded-lg"></div>
                   </div>
-                  <h4 className="text-xl font-semibold text-white mb-4">
+                  <h4 className="text-xl font-semibold text-gray-900 mb-4">
                     {point.title}
                   </h4>
-                  <p className="text-gray-400 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed">
                     {point.description}
                   </p>
                 </div>
@@ -452,68 +666,148 @@ const About = () => {
           }}
         >
           <div className="max-w-4xl mx-auto">
-            <h3 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12">
               Frequently Asked Questions
             </h3>
             <div className="space-y-6">
               {faqs.map((faq, index) => (
-                <div key={index} className="border-b border-gray-700 pb-6">
-                  <h4 className="text-lg font-semibold text-white mb-3">
+                <div key={index} className="border-b border-gray-300 pb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">
                     {faq.q}
                   </h4>
-                  <p className="text-gray-400 leading-relaxed">{faq.a}</p>
+                  <p className="text-gray-600 leading-relaxed">{faq.a}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ===== CTA SECTION - Conditional based on login status ===== */}
-        {!isLoggedIn && (
-          <section
-            className="py-20 px-6"
-            data-scroll-item
-            data-index="cta"
-            style={{
-              opacity: visibleItems.has("cta") ? 1 : 0,
-              transform: visibleItems.has("cta")
-                ? "translateY(0)"
-                : "translateY(30px)",
-              transition: "all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-            }}
-          >
-            <div className="max-w-4xl mx-auto text-center">
-              <div className="p-12">
-                <h3 className="text-3xl md:text-4xl font-bold text-white mb-5">
-                  Are you ready to turn the first page of your next great
-                  adventure?
-                </h3>
-                <p className="text-lg text-gray-400 mb-8 max-w-5xl mx-auto">
-                  With LIT ISLE, you step into a world where thousands of readers
-                  have already found stories that stayed with them long after
-                  the last chapter. Your next favorite book might just be
-                  waiting for you here.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  {/* Task 3: Link to library page */}
-                  <Link 
-                    to="/library" 
-                    className="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
-                  >
-                    Explore Library
-                  </Link>
-                  {/* Task 3: Link to register page */}
-                  <Link 
-                    to="/register" 
-                    className="px-8 py-4 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
-                  >
-                    Create Free Account
-                  </Link>
-                </div>
-              </div>
+        {/* ===== MOBILE CTA SECTION ===== */}
+        <div className="lg:hidden px-4 py-4">
+          <MobileSection id="cta" title="Get Started">
+            <div className="text-center space-y-3">
+              {isAuthenticated ? (
+                <>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Welcome back, {user?.name || 'Reader'}!
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Continue your reading journey with thousands of books at your fingertips.
+                  </p>
+                  <div className="space-y-2">
+                    <Link 
+                      to="/shelf" 
+                      className="block w-full px-6 py-3 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-lg transition-colors text-sm"
+                    >
+                      My Shelf
+                    </Link>
+                    <Link 
+                      to="/allbooks" 
+                      className="block w-full px-6 py-3 border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white font-semibold rounded-lg transition-colors text-sm"
+                    >
+                      Discover Books
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Ready to start reading?
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Join thousands of readers who have found their next favorite book here.
+                  </p>
+                  <div className="space-y-2">
+                    <Link 
+                      to="/allbooks" 
+                      className="block w-full px-6 py-3 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-lg transition-colors text-sm"
+                    >
+                      Explore Library
+                    </Link>
+                    <Link 
+                      to="/register" 
+                      className="block w-full px-6 py-3 border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white font-semibold rounded-lg transition-colors text-sm"
+                    >
+                      Create Free Account
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
-          </section>
-        )}
+          </MobileSection>
+        </div>
+
+        {/* ===== DESKTOP CTA SECTION - Dynamic based on login status ===== */}
+        <section
+          className="hidden lg:block py-20 px-6"
+          data-scroll-item
+          data-index="cta"
+          style={{
+            opacity: visibleItems.has("cta") ? 1 : 0,
+            transform: visibleItems.has("cta")
+              ? "translateY(0)"
+              : "translateY(30px)",
+            transition: "all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          }}
+        >
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="p-12">
+              {isAuthenticated ? (
+                // Logged in user content
+                <>
+                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-5">
+                    Welcome back, {user?.name || 'Reader'}!
+                  </h3>
+                  <p className="text-lg text-gray-600 mb-8 max-w-5xl mx-auto">
+                    Continue your reading journey with thousands of books at your fingertips. 
+                    Your personalized library and reading progress are waiting for you.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link 
+                      to="/shelf" 
+                      className="px-8 py-4 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
+                    >
+                      My Shelf
+                    </Link>
+                    <Link 
+                      to="/recommendations" 
+                      className="px-8 py-4 border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
+                    >
+                      Discover Books
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                // Not logged in user content
+                <>
+                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-5">
+                    Are you ready to turn the first page of your next great adventure?
+                  </h3>
+                  <p className="text-lg text-gray-600 mb-8 max-w-5xl mx-auto">
+                    With LIT ISLE, you step into a world where thousands of readers
+                    have already found stories that stayed with them long after
+                    the last chapter. Your next favorite book might just be
+                    waiting for you here.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link 
+                      to="/allbooks" 
+                      className="px-8 py-4 bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
+                    >
+                      Explore Library
+                    </Link>
+                    <Link 
+                      to="/register" 
+                      className="px-8 py-4 border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
+                    >
+                      Create Free Account
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
       </div>
       <Footer />
     </div>

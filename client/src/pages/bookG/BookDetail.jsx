@@ -106,7 +106,253 @@ const BookDetail = () => {
     <div className="min-h-screen bg-white text-gray-900">
       <Navbar />
       <div className="h-16" />
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        <div className="px-4 py-6">
+          {/* Mobile Book Cover and Actions */}
+          <div className="text-center mb-6">
+            <div className="mx-auto w-48 h-64 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-lg mb-4">
+              <img
+                src={book.cover}
+                alt={book.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            {/* Mobile Action Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate(`/book/${slug}/read`)}
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-[#0B6623] hover:bg-[#0e7a2b] text-white font-semibold text-lg transition-colors shadow-lg"
+              >
+                Read Now
+              </button>
+              <button
+                onClick={() => {
+                  if (!book) return;
+                  if (isInShelf(slug, "nextUp")) {
+                    navigate("/shelf");
+                    return;
+                  }
+                  addToShelf(
+                    {
+                      slug,
+                      title: book.title,
+                      author: book.author,
+                      cover: book.cover,
+                    },
+                    "nextUp"
+                  );
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl border-2 border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white transition-colors font-semibold text-lg"
+              >
+                {isInShelf(slug, "nextUp") ? "Go to Shelf" : "Add to Shelf"}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Book Info */}
+          <div className="space-y-6">
+            {/* Title and Author */}
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+                {book.title}
+              </h1>
+              <div className="text-lg text-gray-600 mb-4">by {book.author}</div>
+              
+              {/* Mobile Action Buttons Row */}
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={toggleFavorite}
+                  className={`p-3 rounded-full border-2 ${
+                    isFavorite 
+                      ? "border-red-500 bg-red-50 text-red-500" 
+                      : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  }`}
+                  aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <Heart
+                    className="w-6 h-6"
+                    fill={isFavorite ? "currentColor" : "none"}
+                  />
+                </button>
+                <div className="relative">
+                  <button
+                    onClick={handleShareClick}
+                    className="p-3 rounded-full border-2 border-gray-300 text-gray-600 hover:bg-gray-50"
+                    aria-label="Share"
+                  >
+                    <Share2 className="w-6 h-6" />
+                  </button>
+                  {isShareOpen && (
+                    <div className="absolute right-0 z-10 mt-2 w-72 rounded-xl border border-gray-200 bg-white shadow-lg p-3">
+                      <div className="text-sm font-semibold text-gray-800 mb-2">
+                        Share this book
+                      </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <input
+                          readOnly
+                          value={shareUrl}
+                          className="flex-1 px-2 py-1.5 rounded-md border border-gray-200 text-sm text-gray-700 bg-gray-50"
+                          onFocus={(e) => e.currentTarget.select()}
+                        />
+                        <button
+                          onClick={handleCopy}
+                          className="px-2 py-1.5 rounded-md border border-gray-200 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          {copied ? "Copied" : "Copy"}
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-sm">
+                        <a
+                          href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                            shareText + " " + shareUrl
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center justify-center px-3 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50"
+                        >
+                          WhatsApp
+                        </a>
+                        <a
+                          href={`mailto:?subject=${encodeURIComponent(
+                            shareTitle
+                          )}&body=${encodeURIComponent(
+                            shareText + "\n" + shareUrl
+                          )}`}
+                          className="inline-flex items-center justify-center px-3 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50"
+                        >
+                          Email
+                        </a>
+                        <a
+                          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                            shareText
+                          )}&url=${encodeURIComponent(shareUrl)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center justify-center px-3 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50"
+                        >
+                          Twitter
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Rating */}
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+              <StarsRow value={book.ratingAvg || 4} size={18} />
+              <span className="font-semibold">{(book.ratingAvg || 4).toFixed(1)}</span>
+              <span>·</span>
+              <span>{book.ratingsCount?.toLocaleString() || 0} ratings</span>
+              <span>·</span>
+              <span>{book.reviewsCount?.toLocaleString() || 0} reviews</span>
+            </div>
+
+            {/* Mobile Synopsis */}
+            <div className="bg-gray-50 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">About this book</h3>
+              <div className={`relative overflow-hidden transition-[max-height] duration-500 ease-in-out`} style={{ maxHeight: showFullDesc ? 800 : 120 }}>
+                <p className="text-gray-700 leading-relaxed text-sm">{book.description}</p>
+                {!showFullDesc && (
+                  <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-50 to-transparent" />
+                )}
+              </div>
+              <button
+                onClick={() => setShowFullDesc((v) => !v)}
+                className="mt-2 text-[#0B6623] font-semibold text-sm"
+              >
+                {showFullDesc ? "Show less" : "Show more"}
+              </button>
+            </div>
+
+            {/* Mobile Genres */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Genres</h3>
+              <div className="flex flex-wrap gap-2">
+                {book.genres?.map((g) => (
+                  <span
+                    key={g}
+                    className="px-3 py-2 rounded-full bg-[#0B6623]/10 border border-[#0B6623]/20 text-sm text-[#0B6623] font-medium"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile Publication Details */}
+            <div className="bg-gray-50 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Book Details</h3>
+              <div className="space-y-2 text-sm text-gray-600">
+                {book.series && <div><span className="font-medium">Series:</span> {book.series}</div>}
+                {book.isbn && <div><span className="font-medium">ISBN:</span> {book.isbn}</div>}
+                {book.asin && <div><span className="font-medium">ASIN:</span> {book.asin}</div>}
+                {book.language && <div><span className="font-medium">Language:</span> {book.language}</div>}
+                {book.publicationDate && (
+                  <div><span className="font-medium">Published:</span> {book.publicationDate}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Mobile Social Stats */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-4">
+                <div className="flex -space-x-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <img
+                      key={i}
+                      src={`https://i.pravatar.cc/40?img=${i + 1}`}
+                      className="w-8 h-8 rounded-full border-2 border-white"
+                    />
+                  ))}
+                </div>
+                <div className="text-sm text-gray-600">
+                  <span className="font-semibold">231</span> people are currently reading
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-4">
+                <div className="flex -space-x-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <img
+                      key={i}
+                      src={`https://i.pravatar.cc/40?img=${i + 5}`}
+                      className="w-8 h-8 rounded-full border-2 border-white"
+                    />
+                  ))}
+                </div>
+                <div className="text-sm text-gray-600">
+                  <span className="font-semibold">1,102</span> people want to read
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Author Info */}
+            <AboutAuthor book={book} />
+          </div>
+        </div>
+
+        {/* Mobile Recommendations */}
+        <Recommendations current={book} />
+
+        {/* Mobile Reviews */}
+        <div className="px-4 py-6">
+          <h3 className="text-xl font-semibold mb-4">Reviews & Comments</h3>
+          <div className="bg-gray-50 rounded-xl p-4 mb-4">
+            <div className="text-sm text-gray-600 mb-3">Rate this book</div>
+            <StarsRow value={0} size={20} />
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-gray-700 text-center">
+            Coming soon: reader reviews and discussion threads.
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:block max-w-6xl mx-auto px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left column */}
           <aside className="md:col-span-1">
@@ -431,17 +677,17 @@ const AboutAuthor = ({ book }) => {
   const isAuthorVerifiedAndLoggedIn = false; // placeholder: gate based on auth state when available
 
   return (
-    <div className="mt-10 pt-8 border-t border-gray-200">
-      <h3 className="text-lg font-semibold mb-4">About the author</h3>
+    <div className="bg-gray-50 rounded-xl p-4">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">About the author</h3>
       <div className="flex items-start gap-4">
         <img
           src={author.image || `https://i.pravatar.cc/80?u=${authorKey}`}
-          className="w-16 h-16 rounded-full border border-gray-200 object-cover"
+          className="w-16 h-16 rounded-full border-2 border-white object-cover shadow-sm"
         />
         <div className="flex-1">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="font-semibold text-gray-900">{author.name}</div>
+              <div className="font-semibold text-gray-900 text-lg">{author.name}</div>
               {isAuthorVerifiedAndLoggedIn && (
                 <div className="text-sm text-gray-600">
                   {book.authorInfo?.booksCount || 0} books ·{" "}
@@ -450,30 +696,30 @@ const AboutAuthor = ({ book }) => {
               )}
             </div>
             {isAuthorVerifiedAndLoggedIn ? (
-              <button className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white">
+              <button className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-[#0B6623] text-[#0B6623] hover:bg-[#0B6623] hover:text-white text-sm">
                 <UserPlus className="w-4 h-4" /> Follow
               </button>
             ) : (
               <button
                 disabled
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-300 text-gray-400 cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-300 text-gray-400 cursor-not-allowed text-sm"
                 title="Only the verified author can enable following"
               >
                 Verify yourself if you are the author
               </button>
             )}
           </div>
-          <p className="text-sm text-gray-700 mt-3 leading-relaxed">
+          <p className="text-sm text-gray-700 leading-relaxed mb-3">
             {author.about || book.authorInfo?.bio}
           </p>
-          <div className="text-sm text-gray-500 mt-2 space-y-1">
-            {author.born && <div>Born: {author.born}</div>}
-            {author.died && <div>Died: {author.died}</div>}
+          <div className="text-xs text-gray-500 space-y-1">
+            {author.born && <div><span className="font-medium">Born:</span> {author.born}</div>}
+            {author.died && <div><span className="font-medium">Died:</span> {author.died}</div>}
             {author.numberOfBooks && (
-              <div>Number of books: {author.numberOfBooks}</div>
+              <div><span className="font-medium">Books:</span> {author.numberOfBooks}</div>
             )}
             {author.popularWorks && (
-              <div>Most popular: {author.popularWorks}</div>
+              <div><span className="font-medium">Popular:</span> {author.popularWorks}</div>
             )}
           </div>
         </div>
@@ -501,16 +747,17 @@ const Recommendations = ({ current }) => {
   if (items.length === 0) return null;
 
   return (
-    <div className="mt-10">
-      <h3 className="text-lg font-semibold mb-4">You might also like</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div className="px-4 py-6">
+      <h3 className="text-xl font-semibold mb-4 text-gray-900">You might also like</h3>
+      {/* Mobile Layout - 2 columns */}
+      <div className="grid grid-cols-2 gap-4 lg:hidden">
         {items.map((bk) => (
           <Link
             key={bk.slug}
             to={`/book/${bk.slug}`}
-            className="group rounded-xl border border-gray-200 hover:border-[#0B6623]/40 p-3"
+            className="group rounded-xl border border-gray-200 hover:border-[#0B6623]/40 p-3 bg-white shadow-sm hover:shadow-md transition-all"
           >
-            <div className="aspect-[3/4] overflow-hidden rounded-md bg-white border border-gray-200 mb-2">
+            <div className="aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 border border-gray-200 mb-3">
               <img
                 src={bk.cover}
                 alt={bk.title}
@@ -518,12 +765,36 @@ const Recommendations = ({ current }) => {
               />
             </div>
             <div
-              className="text-sm font-medium line-clamp-2"
-              style={{ color: "#0B6623" }}
+              className="text-sm font-semibold line-clamp-2 text-gray-900 mb-1"
             >
               {bk.title}
             </div>
-            <div className="text-xs text-gray-600 mt-0.5">{bk.author}</div>
+            <div className="text-xs text-gray-600">{bk.author}</div>
+          </Link>
+        ))}
+      </div>
+      
+      {/* Desktop Layout - 4 columns */}
+      <div className="hidden lg:grid grid-cols-4 gap-6">
+        {items.map((bk) => (
+          <Link
+            key={bk.slug}
+            to={`/book/${bk.slug}`}
+            className="group rounded-xl border border-gray-200 hover:border-[#0B6623]/40 p-4 bg-white shadow-sm hover:shadow-md transition-all"
+          >
+            <div className="aspect-[3/4] overflow-hidden rounded-lg bg-gray-50 border border-gray-200 mb-4">
+              <img
+                src={bk.cover}
+                alt={bk.title}
+                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"
+              />
+            </div>
+            <div
+              className="text-base font-semibold line-clamp-2 text-gray-900 mb-2"
+            >
+              {bk.title}
+            </div>
+            <div className="text-sm text-gray-600">{bk.author}</div>
           </Link>
         ))}
       </div>

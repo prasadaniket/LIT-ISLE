@@ -7,7 +7,7 @@ const Newsettler = () => {
       <div className="mx-auto" style={{ maxWidth: '1200px', padding: '0 24px' }}>
         {/* Heading */}
         <div className="text-center mb-8">
-          <h2 className="text-black font-semibold" style={{ fontSize: '32px', lineHeight: 1.2 }}>Stay in the loop</h2>
+          <h2 className="text-black font-semibold" style={{ fontSize: '32px', lineHeight: 1.2, fontFamily: "'Playful Display', serif" }}>Stay in the loop</h2>
           <p className="text-gray-600" style={{ fontSize: '16px' }}>Weekly picks, hidden gems, and cozy reads—straight to your inbox.</p>
         </div>
 

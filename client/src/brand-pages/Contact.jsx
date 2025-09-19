@@ -15,7 +15,9 @@ import {
   Users,
   Library,
   Star,
-  Heart
+  Heart,
+  Menu,
+  X
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -32,6 +34,7 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const sectionRef = useRef(null);
 
   // Auto-scroll to top when component mounts
@@ -168,29 +171,29 @@ const Contact = () => {
   // ===== SUCCESS STATE =====
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-white">
         <Navbar />
         <div className="flex items-center justify-center min-h-screen px-6">
           <div className="max-w-md mx-auto text-center">
-            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-green-500" />
+              <div className="w-20 h-20 bg-[#0B6623]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-10 h-10 text-[#0B6623]" />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-4">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
               Message Sent Successfully!
             </h1>
-            <p className="text-lg text-gray-400 mb-8">
+            <p className="text-lg text-gray-600 mb-8">
               Thank you for reaching out to us. We've received your message and will get back to you within 24 hours.
             </p>
             <div className="space-y-4">
               <Link
                 to="/"
-                className="block px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
+                className="block px-8 py-4 bg-[#0B6623] hover:bg-[#0e7a2b] text-gray-900 font-semibold rounded-xl transition-all duration-300 transform hover:scale-105"
               >
                 Return Home
               </Link>
               <button
                 onClick={() => setIsSubmitted(false)}
-                className="block w-full px-8 py-4 border border-gray-600 text-gray-300 hover:bg-gray-800 font-semibold rounded-xl transition-all duration-300"
+                className="block w-full px-8 py-4 border border-gray-600 text-gray-700 hover:bg-gray-800 font-semibold rounded-xl transition-all duration-300"
               >
                 Send Another Message
               </button>
@@ -203,12 +206,63 @@ const Contact = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Navbar />
+      
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
+          <div className="absolute left-0 top-0 h-full w-80 bg-white shadow-xl">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Contact Us</h2>
+                <button onClick={() => setSidebarOpen(false)}>
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 space-y-4">
+              <a href="#contact-info" className="block py-2 text-gray-700 hover:text-[#0B6623]">Contact Info</a>
+              <a href="#contact-form" className="block py-2 text-gray-700 hover:text-[#0B6623]">Send Message</a>
+              <a href="#why-contact" className="block py-2 text-gray-700 hover:text-[#0B6623]">Why Contact Us</a>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div ref={sectionRef} className="relative">
-        {/* ===== HERO SECTION ===== */}
+        {/* ===== MOBILE HERO SECTION ===== */}
+        <section className="lg:hidden">
+          <div className="bg-gradient-to-br from-[#0B6623]/10 to-white py-8 px-4">
+            <div className="flex items-center justify-between mb-6">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 rounded-lg bg-white shadow-sm"
+              >
+                <Menu className="w-6 h-6 text-gray-700" />
+              </button>
+              <h1 className="text-xl font-bold text-gray-900">Contact Us</h1>
+              <div className="w-10" />
+            </div>
+            
+            <div className="text-center mb-6">
+              <div className="flex justify-center mb-4">
+                <MessageCircle className="w-12 h-12 text-[#0B6623]" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Get in Touch
+              </h2>
+              <p className="text-gray-600 text-sm">
+                We're here to help you on your reading journey
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== DESKTOP HERO SECTION ===== */}
         <section 
-          className="relative py-32 px-6 overflow-hidden"
+          className="hidden lg:block relative py-32 px-6 overflow-hidden"
           data-scroll-item
           data-index="hero"
           style={{
@@ -231,12 +285,12 @@ const Contact = () => {
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="text-center mb-12">
               <div className="flex justify-center mb-6">
-                <MessageCircle className="w-16 h-16 text-orange-400" />
+                <MessageCircle className="w-16 h-16 text-[#0B6623]" />
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-serif">
+              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 font-serif">
                 Contact Us
               </h1>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8">
+              <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed mb-8">
                 Have questions, feedback, or need help? We're here to assist you on your reading journey. 
                 Reach out to our friendly support team.
               </p>
@@ -244,9 +298,214 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* ===== CONTACT INFO ===== */}
+        {/* ===== MOBILE CONTENT SECTIONS ===== */}
+        <div className="lg:hidden px-4 py-6">
+          {/* Contact Info */}
+          <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden">
+            <div className="px-4 py-4 bg-gray-50 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+            </div>
+            <div className="px-4 py-4 space-y-4">
+              {contactInfo.map((info, index) => (
+                <div 
+                  key={index}
+                  className={`flex items-center gap-3 p-3 rounded-lg ${
+                    info.action ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer' : 'bg-gray-50'
+                  }`}
+                  onClick={info.action ? () => window.open(info.action) : undefined}
+                >
+                  <info.icon className="w-5 h-5 text-[#0B6623] flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-gray-900 text-sm">{info.title}</h4>
+                    <p className="text-gray-600 text-xs">{info.description}</p>
+                    <p className={`text-sm font-medium ${info.action ? 'text-[#0B6623]' : 'text-gray-700'}`}>
+                      {info.value}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden">
+            <div className="px-4 py-4 bg-gray-50 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Send us a Message</h3>
+            </div>
+            <div className="px-4 py-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-gray-900 font-semibold mb-2 text-sm">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 text-sm ${
+                      errors.name ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                    placeholder="Enter your full name"
+                  />
+                  {errors.name && (
+                    <p className="text-red-400 text-xs mt-1">{errors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-900 font-semibold mb-2 text-sm">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 text-sm ${
+                      errors.email ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                    placeholder="Enter your email address"
+                  />
+                  {errors.email && (
+                    <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-900 font-semibold mb-2 text-sm">
+                    Subject *
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 text-sm ${
+                      errors.subject ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                    placeholder="What's this about?"
+                  />
+                  {errors.subject && (
+                    <p className="text-red-400 text-xs mt-1">{errors.subject}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-900 font-semibold mb-2 text-sm">
+                    Category *
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-900 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 text-sm ${
+                      errors.category ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                  >
+                    <option value="">Select a category</option>
+                    {contactCategories.map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.category && (
+                    <p className="text-red-400 text-xs mt-1">{errors.category}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-900 font-semibold mb-2 text-sm">
+                    Message *
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className={`w-full px-3 py-2 bg-gray-100 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 text-sm ${
+                      errors.message ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                    placeholder="Tell us how we can help you..."
+                  />
+                  <p className="text-gray-600 text-xs mt-1">
+                    Minimum 10 characters ({formData.message.length}/10)
+                  </p>
+                  {errors.message && (
+                    <p className="text-red-400 text-xs mt-1">{errors.message}</p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full px-6 py-3 bg-[#0B6623] hover:bg-[#0e7a2b] disabled:bg-[#0B6623]/50 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Send Message
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Why Contact Us */}
+          <div className="bg-white border border-gray-200 rounded-xl mb-4 overflow-hidden">
+            <div className="px-4 py-4 bg-gray-50 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Why Contact Us?</h3>
+            </div>
+            <div className="px-4 py-4 space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-[#0B6623]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-4 h-4 text-[#0B6623]" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 text-sm mb-1">Reading Support</h4>
+                  <p className="text-gray-600 text-xs">
+                    Need help finding the perfect book or having trouble with our reading features? We're here to help.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-[#0B6623]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Users className="w-4 h-4 text-[#0B6623]" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 text-sm mb-1">Community Help</h4>
+                  <p className="text-gray-600 text-xs">
+                    Questions about our community features, reviews, or connecting with other readers? We've got you covered.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-[#0B6623]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Heart className="w-4 h-4 text-[#0B6623]" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 text-sm mb-1">Feedback Welcome</h4>
+                  <p className="text-gray-600 text-xs">
+                    We love hearing from our readers! Share your ideas, suggestions, or just say hello.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== DESKTOP CONTACT INFO ===== */}
         <section 
-          className="py-16 px-6 bg-gradient-to-r from-gray-900/50 to-gray-800/50"
+          className="hidden lg:block py-16 px-6 bg-gray-50"
           data-scroll-item
           data-index="info"
           style={{
@@ -257,23 +516,23 @@ const Contact = () => {
         >
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4 font-serif">Get in Touch</h2>
-              <p className="text-gray-400">Choose your preferred way to reach us</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">Get in Touch</h2>
+              <p className="text-gray-600">Choose your preferred way to reach us</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-6">
               {contactInfo.map((info, index) => (
                 <div 
                   key={index}
-                  className={`bg-gray-800/30 border border-gray-700 rounded-2xl p-6 text-center hover:border-orange-500/30 transition-all duration-300 ${
+                  className={`bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center hover:border-[#0B6623]/30 transition-all duration-300 ${
                     info.action ? 'cursor-pointer' : ''
                   }`}
                   onClick={info.action ? () => window.open(info.action) : undefined}
                 >
-                  <info.icon className="w-8 h-8 text-orange-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">{info.title}</h3>
-                  <p className="text-gray-400 text-sm mb-4">{info.description}</p>
-                  <p className={`font-medium ${info.action ? 'text-orange-400 hover:text-orange-300' : 'text-gray-300'}`}>
+                  <info.icon className="w-8 h-8 text-[#0B6623] mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{info.title}</h3>
+                  <p className="text-gray-600 text-sm mb-4">{info.description}</p>
+                  <p className={`font-medium ${info.action ? 'text-[#0B6623] hover:text-[#0e7a2b]' : 'text-gray-700'}`}>
                     {info.value}
                   </p>
                 </div>
@@ -282,9 +541,9 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* ===== CONTACT FORM ===== */}
+        {/* ===== DESKTOP CONTACT FORM ===== */}
         <section 
-          className="py-20 px-6"
+          className="hidden lg:block py-20 px-6"
           data-scroll-item
           data-index="form"
           style={{
@@ -295,16 +554,16 @@ const Contact = () => {
         >
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4 font-serif">Send us a Message</h2>
-              <p className="text-gray-400">Fill out the form below and we'll get back to you soon</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">Send us a Message</h2>
+              <p className="text-gray-600">Fill out the form below and we'll get back to you soon</p>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-900/60 to-gray-800/40 border border-gray-700/50 rounded-3xl p-10">
+            <div className="bg-white border border-gray-200 rounded-3xl p-10">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Name and Email */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-gray-900 font-semibold mb-2">
                       Full Name *
                     </label>
                     <input
@@ -312,8 +571,8 @@ const Contact = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 bg-gray-800/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 ${
-                        errors.name ? 'border-red-500' : 'border-gray-700'
+                      className={`w-full px-4 py-3 bg-gray-100 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 ${
+                        errors.name ? 'border-red-500' : 'border-gray-200'
                       }`}
                       placeholder="Enter your full name"
                     />
@@ -323,7 +582,7 @@ const Contact = () => {
                   </div>
 
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-gray-900 font-semibold mb-2">
                       Email Address *
                     </label>
                     <input
@@ -331,8 +590,8 @@ const Contact = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 bg-gray-800/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 ${
-                        errors.email ? 'border-red-500' : 'border-gray-700'
+                      className={`w-full px-4 py-3 bg-gray-100 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 ${
+                        errors.email ? 'border-red-500' : 'border-gray-200'
                       }`}
                       placeholder="Enter your email address"
                     />
@@ -345,7 +604,7 @@ const Contact = () => {
                 {/* Subject and Category */}
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-gray-900 font-semibold mb-2">
                       Subject *
                     </label>
                     <input
@@ -353,8 +612,8 @@ const Contact = () => {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 bg-gray-800/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 ${
-                        errors.subject ? 'border-red-500' : 'border-gray-700'
+                      className={`w-full px-4 py-3 bg-gray-100 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 ${
+                        errors.subject ? 'border-red-500' : 'border-gray-200'
                       }`}
                       placeholder="What's this about?"
                     />
@@ -364,15 +623,15 @@ const Contact = () => {
                   </div>
 
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-gray-900 font-semibold mb-2">
                       Category *
                     </label>
                     <select
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 bg-gray-800/50 border rounded-xl text-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 ${
-                        errors.category ? 'border-red-500' : 'border-gray-700'
+                      className={`w-full px-4 py-3 bg-gray-100 border rounded-xl text-gray-900 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 ${
+                        errors.category ? 'border-red-500' : 'border-gray-200'
                       }`}
                     >
                       <option value="">Select a category</option>
@@ -390,7 +649,7 @@ const Contact = () => {
 
                 {/* Message */}
                 <div>
-                  <label className="block text-white font-semibold mb-2">
+                  <label className="block text-gray-900 font-semibold mb-2">
                     Message *
                   </label>
                   <textarea
@@ -398,12 +657,12 @@ const Contact = () => {
                     value={formData.message}
                     onChange={handleInputChange}
                     rows={6}
-                    className={`w-full px-4 py-3 bg-gray-800/50 border rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 ${
-                      errors.message ? 'border-red-500' : 'border-gray-700'
+                    className={`w-full px-4 py-3 bg-gray-100 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B6623] focus:ring-2 focus:ring-[#0B6623]/20 ${
+                      errors.message ? 'border-red-500' : 'border-gray-200'
                     }`}
                     placeholder="Tell us how we can help you..."
                   />
-                  <p className="text-gray-400 text-sm mt-1">
+                  <p className="text-gray-600 text-sm mt-1">
                     Minimum 10 characters ({formData.message.length}/10)
                   </p>
                   {errors.message && (
@@ -416,7 +675,7 @@ const Contact = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-12 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:from-orange-500/50 disabled:to-orange-600/50 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 disabled:transform-none shadow-lg hover:shadow-orange-500/25"
+                    className="px-12 py-4 bg-[#0B6623] hover:bg-[#0e7a2b] disabled:bg-[#0B6623]/50 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-105 disabled:transform-none shadow-lg"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center">
@@ -436,9 +695,9 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* ===== WHY CONTACT US ===== */}
+        {/* ===== DESKTOP WHY CONTACT US ===== */}
         <section 
-          className="py-20 px-6 bg-gradient-to-br from-gray-900/80 to-gray-800/60"
+          className="hidden lg:block py-20 px-6 bg-gray-50"
           data-scroll-item
           data-index="why"
           style={{
@@ -449,43 +708,43 @@ const Contact = () => {
         >
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-white mb-4 font-serif">Why Contact Us?</h2>
-              <p className="text-gray-400">We're here to make your reading experience amazing</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">Why Contact Us?</h2>
+              <p className="text-gray-600">We're here to make your reading experience amazing</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 bg-orange-500/10 rounded-xl flex items-center justify-center mx-auto mb-6">
-                  <BookOpen className="w-8 h-8 text-orange-400" />
+                <div className="w-16 h-16 bg-[#0B6623]/10 rounded-xl flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="w-8 h-8 text-[#0B6623]" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   Reading Support
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-gray-600">
                   Need help finding the perfect book or having trouble with our reading features? We're here to help.
                 </p>
               </div>
 
               <div className="text-center">
-                <div className="w-16 h-16 bg-orange-500/10 rounded-xl flex items-center justify-center mx-auto mb-6">
-                  <Users className="w-8 h-8 text-orange-400" />
+                <div className="w-16 h-16 bg-[#0B6623]/10 rounded-xl flex items-center justify-center mx-auto mb-6">
+                  <Users className="w-8 h-8 text-[#0B6623]" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   Community Help
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-gray-600">
                   Questions about our community features, reviews, or connecting with other readers? We've got you covered.
                 </p>
               </div>
 
               <div className="text-center">
-                <div className="w-16 h-16 bg-orange-500/10 rounded-xl flex items-center justify-center mx-auto mb-6">
-                  <Heart className="w-8 h-8 text-orange-400" />
+                <div className="w-16 h-16 bg-[#0B6623]/10 rounded-xl flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-8 h-8 text-[#0B6623]" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-3">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   Feedback Welcome
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-gray-600">
                   We love hearing from our readers! Share your ideas, suggestions, or just say hello.
                 </p>
               </div>

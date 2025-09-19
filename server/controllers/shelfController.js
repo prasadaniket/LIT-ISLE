@@ -1,5 +1,6 @@
 import shelfModel from "../models/shelfModel.js";
 import bookModel from "../models/bookModel.js";
+import Activity from "../models/activityModel.js";
 import { authenticateToken } from "../middleware/auth.js";
 
 // Add book to user's shelf
@@ -49,6 +50,15 @@ export async function addToShelf(req, res) {
             await shelf.save();
         }
 
+        // record activity
+        await Activity.create({
+            userId,
+            action: 'shelf.add',
+            metadata: { bookId, shelfType },
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        });
+
         res.status(200).json({
             success: true,
             message: "Book added to shelf successfully",
@@ -88,6 +98,14 @@ export async function removeFromShelf(req, res) {
 
         shelf.books.splice(bookIndex, 1);
         await shelf.save();
+
+        await Activity.create({
+            userId,
+            action: 'shelf.remove',
+            metadata: { bookId },
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        });
 
         res.status(200).json({
             success: true,
@@ -189,6 +207,14 @@ export async function trackProgress(req, res) {
         }
 
         await shelf.save();
+
+        await Activity.create({
+            userId,
+            action: 'reading.progress',
+            metadata: { bookId, progress: book.progress },
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+        });
 
         res.status(200).json({
             success: true,

@@ -76,12 +76,12 @@ export const authAPI = {
 
   // Get user profile
   getProfile: async () => {
-    return await apiRequest('/users/profile');
+    return await apiRequest('/user/profile');
   },
 
   // Update user profile
   updateProfile: async (profileData) => {
-    return await apiRequest('/users/profile', {
+    return await apiRequest('/user/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
     });
@@ -268,12 +268,28 @@ export const readingAPI = {
   }
 };
 
+// Activity API functions
+export const activityAPI = {
+  // Create an activity entry
+  create: async (action, metadata = {}) => {
+    return await apiRequest('/activity', {
+      method: 'POST',
+      body: JSON.stringify({ action, metadata }),
+    });
+  },
+  // Get current user's activity
+  me: async () => {
+    return await apiRequest('/activity/me');
+  },
+};
+
 export default {
   authAPI,
   booksAPI,
   shelfAPI,
   reviewsAPI,
   readingAPI,
+  activityAPI,
   getAuthToken,
   setAuthToken,
   removeAuthToken

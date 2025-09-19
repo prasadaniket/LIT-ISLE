@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { authAPI } from '../services/api';
+import { useAuth } from './AuthContext';
 
 const ShelfContext = createContext();
 
@@ -11,6 +13,8 @@ export const useShelf = () => {
 };
 
 export const ShelfProvider = ({ children }) => {
+  const { isNewUser, markUserAsSettled } = useAuth();
+  
   const [shelf, setShelf] = useState({
     currentlyReading: [
       {
@@ -96,6 +100,23 @@ export const ShelfProvider = ({ children }) => {
 
   // Load shelf data from localStorage on mount
   useEffect(() => {
+    // If it's a new user, start with fresh/empty shelves
+    if (isNewUser) {
+      const freshShelf = {
+        currentlyReading: [],
+        nextUp: [],
+        finished: [],
+        favorites: []
+      };
+      setShelf(freshShelf);
+      // Mark user as settled after giving them fresh start
+      setTimeout(() => {
+        markUserAsSettled();
+      }, 1000);
+      return;
+    }
+
+    // For returning users, load their saved data
     const savedShelf = localStorage.getItem('lit-isle-shelf');
     if (savedShelf) {
       try {
@@ -117,7 +138,7 @@ export const ShelfProvider = ({ children }) => {
         // Fallback to defaults on parse error
       }
     }
-  }, []);
+  }, [isNewUser, markUserAsSettled]);
 
   // Save shelf data to localStorage whenever it changes
   useEffect(() => {
@@ -142,6 +163,20 @@ export const ShelfProvider = ({ children }) => {
       if (shelfType === 'favorites') {
         // Do not touch reading shelves; allow coexistence
         newShelf.favorites = addUnique(newShelf.favorites, book);
+        // log activity
+        try {
+          const token = authAPI.getToken();
+          if (token) {
+            fetch('http://localhost:4000/api/activity', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ action: 'favorites.add', metadata: { slug: book.slug, title: book.title } })
+            }).catch(() => {});
+          }
+        } catch {}
         return newShelf;
       }
 
@@ -182,6 +217,21 @@ export const ShelfProvider = ({ children }) => {
       ...prev,
       [shelfType]: prev[shelfType].filter(book => book.slug !== bookSlug)
     }));
+    if (shelfType === 'favorites') {
+      try {
+        const token = authAPI.getToken();
+        if (token) {
+          fetch('http://localhost:4000/api/activity', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ action: 'favorites.remove', metadata: { slug: bookSlug } })
+          }).catch(() => {});
+        }
+      } catch {}
+    }
   }, []);
 
   const moveBook = useCallback((bookSlug, fromShelf, toShelf) => {
